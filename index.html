@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My</title>
+</head>
+<body>
+<p>p</p>
+
+<div class="box">1</div>
+<div class="box">1</div>
+<div class="box">1</div>
+<div class="box">1</div>
+<div id="container">container</div>
+
+<script src="js/index.js"></script>
+<script>
+    $.ready(function () {
+        console.log($('#container'));
+        console.log($('p'));
+        console.log($('.box'));
+    });
+</script>
+</body>
+</html>
