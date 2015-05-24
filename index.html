@@ -17,8 +17,12 @@
 <script>
     $.ready(function () {
         console.log($('#container'));
-        console.log($('p'));
-        console.log($('.box'));
+        var container = $('#container');
+        container.addClass('wrap');
+        console.log(container.hasClass('wrap'));
+        setInterval(function () {
+            container.toggleClass('wrap');
+        }, 20000);
     });
 </script>
 </body>

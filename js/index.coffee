@@ -1,14 +1,14 @@
-_ = {}
+Lite = {}
 
 $ = this.$ = (selector) ->
   selector = selector.trim()
-  _.Z($.query(selector))
+  Lite.C($.query(selector))
 
 
-_.Z = (dom) ->
-  new Z(dom)
+Lite.C = (dom) ->
+  new C(dom)
 
-Z = (dom) ->
+C = (dom) ->
   len = if dom then dom.length else 0
   for i of dom
     this[i] = dom[i]
@@ -47,7 +47,7 @@ $.query = (selector) ->
 
 
 $.fn =
-  constructor: _.Z,
+  constructor: Lite.Z,
   author: 'bq'
   length: 0,
   forEach: [].forEach,
@@ -55,9 +55,33 @@ $.fn =
   push: [].push,
   sort: [].sort,
   splice: [].splice,
-  indexOf: [].indexOf
+  indexOf: [].indexOf,
+  each: (callback)->
+    [].every.call(this, (el, idx)->
+      callback.call(el, el, idx) isnt false
+    )
+    this
+  addClass: (name)->
+    if (!name) then return this
+    this.each((el, index)->
+      el.classList.add(name)
+    )
+  removeClass: (name)->
+    if (!name) then return this
+    this.each((el, index)->
+      el.classList.remove(name)
+    )
+  hasClass: (name)->
+    if (!name) then return this
+    this.each((el, index)->
+      el.classList.contains(name)
+    )
+  toggleClass: (name)->
+    if (!name) then return this
+    this.each((el, index)->
+      if el.classList.contains(name) then el.classList.remove(name) else el.classList.add(name)
+    )
+Lite.C.prototype = C.prototype = $.fn
 
-_.Z.prototype = Z.prototype = $.fn
-
-$._ = _
+$.Lite = Lite
 
