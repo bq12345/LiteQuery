@@ -17,12 +17,17 @@
 <script>
     $.ready(function () {
         console.log($('#container'));
+        console.log($('.box'));
+        console.log(Object.prototype.toString.call($('.box')))
         var container = $('#container');
         container.addClass('wrap');
         console.log(container.hasClass('wrap'));
         setInterval(function () {
             container.toggleClass('wrap');
         }, 20000);
+        //测试CSS功能基本正常
+        console.log(container.css('width', 1000));
+
     });
 </script>
 </body>
