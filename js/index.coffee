@@ -36,6 +36,10 @@ dasherize = (str) ->
   .replace(/([a-z\d])([A-Z])/g, '$1_$2')
   .replace(/_/g, '-')
   .toLowerCase()
+
+encode = (str) ->
+  encodeURIComponent(str)
+
 type = (obj)  ->
   if obj == null then String(obj) else class2type[{}.toString.call(obj)] or "object"
 
@@ -80,6 +84,128 @@ $.query = (selector) ->
     else
       result = document.querySelectorAll(selector)
     result = slice.call(result)
+
+
+#Ajax&JSONP
+jsonp = do ->
+  counter = 0
+  window = this
+  config = {}
+
+  load = (url, pfnError) ->
+    script = document.createElement('script')
+    done = false
+    script.src = url
+    script.async = true
+
+    errorHandler = pfnError or config.error
+    if typeof errorHandler is 'function'
+      script.onerror = (ex)->
+        errorHandler(
+          url: url
+          event: ex
+        )
+    script.onload = script.onreadystatechange = ->
+      if (!done and (!this.readyState or this.readyState is "loaded" or this.readyState is "complete"))
+        done = true
+        script.onload = script.onreadystatechange = null
+        if  script and script.parentNode
+          script.parentNode.removeChild(script)
+
+    if !head
+      head = document.getElementsByTagName('head')[0]
+    head.appendChild(script)
+
+  jsonp = (url, params, callback, callbackName) ->
+    query = if  (url or '').indexOf('?') is -1 then '?' else '&'
+    callbackName = (callbackName || config['callbackName'] || 'callback')
+    uniqueName = callbackName + "_" + (++counter)
+    params = params || {}
+    for key of params
+      if params.hasOwnProperty(key)
+        query += encode(key) + "=" + encode(params[key]) + "&"
+
+    window[uniqueName] = (data)->
+      callback(data)
+      try
+        delete window[uniqueName];
+      catch e
+      window[uniqueName] = null;
+
+    load(url + query + callbackName + '=' + uniqueName)
+    uniqueName
+
+  setDefaults = (obj) ->
+    config = obj
+
+  {
+  get: jsonp,
+  init: setDefaults
+  }
+
+$.ajaxSettings =
+  type: 'GET'
+  success: ->
+  error: ->
+  xhr: ->
+    new window.XMLHttpRequest()
+  headers: {}
+  accepts:
+    json: 'application/json'
+    html: 'text/html'
+    text: 'text/plain'
+  timeout: 0
+
+ajax = (settings, success, error)->
+  abortTimeout = null
+  dataType = settings.dataType
+  appendQuery = (url, params) ->
+    query = if  (url or '').indexOf('?') is -1 then '?' else '&'
+    if (params is '') then return url
+    for key of params
+      if params.hasOwnProperty(key)
+        query += encode(key) + "=" + encode(params[key]) + "&"
+    (url + query).replace(/[&?]{1,2}/, '?').slice(0, this.length - 1)
+  for key of $.ajaxSettings
+    if (settings[key] is undefined) then settings[key] = $.ajaxSettings[key]
+  xhr = settings.xhr()
+
+  if settings['type'].toUpperCase() is 'GET'
+    settings.url = appendQuery(settings.url, settings.data)
+  xhr.onreadystatechange = ->
+    if xhr.readyState is 4
+      xhr.onreadystatechange = ->
+      clearTimeout(abortTimeout)
+      result
+      rsError = false
+      if (xhr.status >= 200 and xhr.status < 300) or xhr.status is 304 or (xhr.status is 0 and location.protocol is 'file:')
+        dataType = dataType or xhr.getResponseHeader('content-type')
+        result = xhr.responseText
+        try
+          if dataType is 'application/json'
+            result = if /^\s*$/.test(result) then null else JSON.parse(result)
+        catch e
+          rsError = e
+        if rsError
+          error(rsError, xhr.status, xhr)
+        else
+          success(result, xhr.status, xhr)
+      else
+        error(xhr.statusText || null, xhr.status, xhr)
+
+  xhr.open(settings.type, settings.url, true)
+  for k,v of settings.headers
+    xhr.setRequestHeader(k, v)
+  if settings.timeout > 0
+    abortTimeout = setTimeout(->
+      xhr.onreadystatechange = ->
+      xhr.abort()
+    , settings.timeout)
+  xhr.send(if settings.data then settings.data else null)
+  xhr
+$.ajax = ajax
+
+$.jsonp = jsonp
 
 $.fn =
   author: 'bq'

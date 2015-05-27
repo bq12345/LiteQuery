@@ -27,7 +27,29 @@
         }, 20000);
         //测试CSS功能基本正常
         console.log(container.css('width', 1000));
-
+        $.jsonp.init({
+            error: function (url, e) {
+                alert('接口网络错误，请刷新重试');
+            }
+        });
+        $.jsonp.get('http://huodong.yunos.m.taobao.com/token/get.do', {
+            _: Math.random()
+        }, function (d) {
+            console.log(JSON.stringify(d));
+        });
+        $.ajax({
+            url: 'server/data.json',
+            type: 'get',
+            data: {
+                _: Math.random(),
+                name: 'BaiQiang'
+            }
+        }, function (d) {
+            console.log(JSON.stringify(d));
+        }, function (e, code) {
+            console.log(e);
+            console.log(code);
+        });
     });
 </script>
 </body>

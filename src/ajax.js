@@ -229,8 +229,6 @@
         nativeSetHeader = xhr.setRequestHeader,
         abortTimeout
 
-    if (deferred) deferred.promise(xhr)
-
     if (!settings.crossDomain) setHeader('X-Requested-With', 'XMLHttpRequest')
     setHeader('Accept', mime || '*/*')
     if (mime = settings.mimeType || mime) {
