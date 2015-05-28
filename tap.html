@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+    <title>Tap</title>
+    <style>
+        button {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: xx-large;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+
+<button id="btn">Tap测试</button>
+<script src="js/tap.js"></script>
+
+<script>
+    document.getElementById('btn').addEventListener('tap', function (e) {
+        e.preventDefault();
+        console.log(e)
+    });
+</script>
+</body>
+</html>

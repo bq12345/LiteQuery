@@ -2,7 +2,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>My</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+    <title>LiteQuery</title>
 </head>
 <body>
 <p>p</p>
@@ -27,16 +29,23 @@
         }, 20000);
         //测试CSS功能基本正常
         console.log(container.css('width', 1000));
+
+        container.css({
+            border: 'red solid 4px',
+            background: '#ef0'
+        });
         $.jsonp.init({
             error: function (url, e) {
                 alert('接口网络错误，请刷新重试');
             }
         });
+        //测试jsonp功能正常
         $.jsonp.get('http://huodong.yunos.m.taobao.com/token/get.do', {
             _: Math.random()
         }, function (d) {
             console.log(JSON.stringify(d));
         });
+        //测试ajax功能
         $.ajax({
             url: 'server/data.json',
             type: 'get',
@@ -50,6 +59,15 @@
             console.log(e);
             console.log(code);
         });
+        //测试简单事件绑定
+        /*container.on('click', function (e) {
+         console.log(e.type);
+         });*/
+        container.on('tap', function (e) {
+            e.preventDefault();
+            console.log(e.type);
+        });
+
     });
 </script>
 </body>

@@ -14,9 +14,8 @@ C = (dom) ->
   this.length = len
   this
 
-###
-  一些内部使用的方法及变量
-###
+#一些内部使用的方法及变量
+
 class2type = {}
 cssNumber = {'column-count': 1, 'columns': 1, 'font-weight': 1, 'line-height': 1, 'opacity': 1, 'z-index': 1, 'zoom': 1}
 isArray = Array.isArray
@@ -66,6 +65,9 @@ $.each = (elements, callback)->
 
 $.isArraylike = (obj)->
   typeof obj.length is 'number'
+
+
+#main query
 
 $.query = (selector) ->
   slice = Array.prototype.slice
@@ -166,6 +168,7 @@ ajax = (settings, success, error)->
       if params.hasOwnProperty(key)
         query += encode(key) + "=" + encode(params[key]) + "&"
     (url + query).replace(/[&?]{1,2}/, '?').slice(0, this.length - 1)
+
   for key of $.ajaxSettings
     if (settings[key] is undefined) then settings[key] = $.ajaxSettings[key]
   xhr = settings.xhr()
@@ -203,6 +206,71 @@ ajax = (settings, success, error)->
     , settings.timeout)
   xhr.send(if settings.data then settings.data else null)
   xhr
+
+
+#tap event,this may affect double touch...
+
+Tap = {}
+coords = {}
+eventUtil =
+  attachEvent: (element, eventName, callback)->
+      element.addEventListener(eventName, callback, false)
+  fireFakeEvent: (e, eventName)->
+    if document.createEvent
+      e.target.dispatchEvent(eventUtil.createEvent(eventName))
+  createEvent: (name)->
+    if document.createEvent
+      event = window.document.createEvent('HTMLEvents')
+      event.initEvent(name, true, true)
+      event.eventName = name
+      event
+  getRealEvent: (e)->
+    if e.originalEvent and e.originalEvent.touches and e.originalEvent.touches.length
+      return e.originalEvent.touches[0]
+    else
+      if e.touches and e.touches.length
+        return e.touches[0]
+      e
+
+Tap.options =
+  eventName: 'tap'
+  fingerMaxOffset: 11
+
+handlers =
+  start: (e) ->
+    e = eventUtil.getRealEvent(e)
+    coords.start = [e.pageX, e.pageY]
+    coords.offset = [0, 0]
+
+  move: (e) ->
+    if !coords['start'] and !coords['move']
+      return false
+    e = eventUtil.getRealEvent(e)
+    coords.move = [e.pageX, e.pageY]
+    coords.offset = [
+      Math.abs(coords.move[0] - coords.start[0])
+      Math.abs(coords.move[1] - coords.start[1])
+    ]
+
+  end: (e) ->
+    e = eventUtil.getRealEvent(e)
+    if coords.offset[0] < Tap.options.fingerMaxOffset and coords.offset[1] < Tap.options.fingerMaxOffset and !eventUtil.fireFakeEvent(e,
+      Tap.options.eventName)
+      e.preventDefault()
+    coords = {}
+
+  click: (e) ->
+    if !eventUtil.fireFakeEvent(e, Tap.options.eventName)
+      e.preventDefault()
+
+$.ready(->
+  el = document.documentElement
+  eventUtil.attachEvent(el, 'touchstart', handlers['start'])
+  eventUtil.attachEvent(el, 'touchmove', handlers['move'])
+  eventUtil.attachEvent(el, 'touchend', handlers['end'])
+  eventUtil.attachEvent(el, 'click', handlers['click'])
+)
+
 $.ajax = ajax
 
 $.jsonp = jsonp
@@ -275,8 +343,12 @@ $.fn =
       this.style.cssText += ';' + css
     )
 
+#event Listener 先不使用代理
+$.fn.on = (event, callback) ->
+  this.each((el)->
+    el.addEventListener(event, callback)
+  )
 
 Lite.C.prototype = C.prototype = $.fn
 
 $.Lite = Lite
-
