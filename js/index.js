@@ -37,8 +37,8 @@
 
   isArray = Array.isArray;
 
-  "Boolean Number String Function Array Date RegExp Object Error".split(" ").forEach(function(name) {
-    return class2type["[object " + name + "]"] = name.toLowerCase();
+  'Boolean Number String Function Array Date RegExp Object Error'.split(' ').forEach(function(name) {
+    return class2type['[object ' + name + ']'] = name.toLowerCase();
   });
 
   camelize = function(str) {
@@ -234,7 +234,7 @@
       }
       for (key in params) {
         if (params.hasOwnProperty(key)) {
-          query += encode(key) + "=" + encode(params[key]) + "&";
+          query += (encode(key)) + "=" + (encode(params[key])) + "&";
         }
       }
       return (url + query).replace(/[&?]{1,2}/, '?').slice(0, this.length - 1);
@@ -251,7 +251,7 @@
     xhr.onreadystatechange = function() {
       var e, result, rsError;
       if (xhr.readyState === 4) {
-        xhr.onreadystatechange = function() {};
+        xhr.onreadystatechange = null;
         clearTimeout(abortTimeout);
         result;
         rsError = false;

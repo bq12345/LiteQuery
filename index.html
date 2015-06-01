@@ -48,6 +48,10 @@
         //测试ajax功能
         $.ajax({
             url: 'server/data.json',
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-Powered": "BaiQiang"
+            },
             type: 'get',
             data: {
                 _: Math.random(),
@@ -59,7 +63,7 @@
             console.log(e);
             console.log(code);
         });
-        //测试简单事件绑定
+        //测试简单事件绑定 Tap会阻止click事件
         /*container.on('click', function (e) {
          console.log(e.type);
          });*/

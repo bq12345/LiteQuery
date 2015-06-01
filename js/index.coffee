@@ -17,12 +17,20 @@ C = (dom) ->
 #一些内部使用的方法及变量
 
 class2type = {}
-cssNumber = {'column-count': 1, 'columns': 1, 'font-weight': 1, 'line-height': 1, 'opacity': 1, 'z-index': 1, 'zoom': 1}
+cssNumber =
+  'column-count': 1
+  'columns': 1
+  'font-weight': 1
+  'line-height': 1
+  'opacity': 1
+  'z-index': 1
+  'zoom': 1
+
 isArray = Array.isArray
 
 
-"Boolean Number String Function Array Date RegExp Object Error".split(" ").forEach((name)->
-  class2type["[object " + name + "]"] = name.toLowerCase()
+'Boolean Number String Function Array Date RegExp Object Error'.split(' ').forEach((name)->
+  class2type['[object ' + name + ']'] = name.toLowerCase()
 )
 camelize = (str)->
   str.replace(/-+(.)?/g, (match, chr)->
@@ -45,9 +53,8 @@ type = (obj)  ->
 maybeAddPx = (name, value) ->
   if (typeof value == "number" and !cssNumber[dasherize(name)]) then value + "px" else value
 
-
 $.ready = (callback)->
-  if (/complete|loaded|interactive/.test(document.readyState) && document.body)
+  if (/complete|loaded|interactive/.test(document.readyState) and document.body)
     callback($)
   else
     document.addEventListener('DOMContentLoaded', ->
@@ -66,7 +73,6 @@ $.each = (elements, callback)->
 $.isArraylike = (obj)->
   typeof obj.length is 'number'
 
-
 #main query
 
 $.query = (selector) ->
@@ -75,7 +81,7 @@ $.query = (selector) ->
   result = null
   found = []
   maybeID = selector[0] == '#'
-  maybeClass = !maybeID && selector[0] == '.'
+  maybeClass = !maybeID and selector[0] == '.'
   nameOnly = if  (maybeID || maybeClass) then selector.slice(1) else selector
   isSimple = simpleSelectorRE.test(nameOnly)
   if document.getElementById and isSimple and maybeID
@@ -108,7 +114,7 @@ jsonp = do ->
           event: ex
         )
     script.onload = script.onreadystatechange = ->
-      if (!done and (!this.readyState or this.readyState is "loaded" or this.readyState is "complete"))
+      if !done and (!this.readyState or this.readyState is "loaded" or this.readyState is "complete")
         done = true
         script.onload = script.onreadystatechange = null
         if  script and script.parentNode
@@ -120,9 +126,9 @@ jsonp = do ->
 
   jsonp = (url, params, callback, callbackName) ->
     query = if  (url or '').indexOf('?') is -1 then '?' else '&'
-    callbackName = (callbackName || config['callbackName'] || 'callback')
+    callbackName = (callbackName or config['callbackName'] or 'callback')
     uniqueName = callbackName + "_" + (++counter)
-    params = params || {}
+    params = params or {}
     for key of params
       if params.hasOwnProperty(key)
         query += encode(key) + "=" + encode(params[key]) + "&"
@@ -166,18 +172,18 @@ ajax = (settings, success, error)->
     if (params is '') then return url
     for key of params
       if params.hasOwnProperty(key)
-        query += encode(key) + "=" + encode(params[key]) + "&"
+        query += "#{encode(key)}=#{encode(params[key])}&"
     (url + query).replace(/[&?]{1,2}/, '?').slice(0, this.length - 1)
 
   for key of $.ajaxSettings
-    if (settings[key] is undefined) then settings[key] = $.ajaxSettings[key]
+    settings[key] = $.ajaxSettings[key] if settings[key] is undefined
   xhr = settings.xhr()
 
   if settings['type'].toUpperCase() is 'GET'
     settings.url = appendQuery(settings.url, settings.data)
   xhr.onreadystatechange = ->
     if xhr.readyState is 4
-      xhr.onreadystatechange = ->
+      xhr.onreadystatechange = null
       clearTimeout(abortTimeout)
       result
       rsError = false
@@ -194,19 +200,18 @@ ajax = (settings, success, error)->
         else
           success(result, xhr.status, xhr)
       else
-        error(xhr.statusText || null, xhr.status, xhr)
+        error xhr.statusText or null, xhr.status, xhr
 
   xhr.open(settings.type, settings.url, true)
   for k,v of settings.headers
     xhr.setRequestHeader(k, v)
   if settings.timeout > 0
-    abortTimeout = setTimeout(->
+    abortTimeout = setTimeout ->
       xhr.onreadystatechange = ->
       xhr.abort()
-    , settings.timeout)
+    , settings.timeout
   xhr.send(if settings.data then settings.data else null)
   xhr
-
 
 #tap event,this may affect double touch...
 
@@ -214,7 +219,7 @@ Tap = {}
 coords = {}
 eventUtil =
   attachEvent: (element, eventName, callback)->
-      element.addEventListener(eventName, callback, false)
+    element.addEventListener(eventName, callback, false)
   fireFakeEvent: (e, eventName)->
     if document.createEvent
       e.target.dispatchEvent(eventUtil.createEvent(eventName))
@@ -315,12 +320,12 @@ $.fn =
       if !element then return
       computedStyle = getComputedStyle(element, '')
       if typeof property is 'string'
-        return element.style[camelize(property)] || computedStyle.getPropertyValue(property)
+        return element.style[camelize(property)] or computedStyle.getPropertyValue(property)
       else
         if isArray(property)
           props = {}
           $.each(property, (prop)->
-            props[prop] = (element.style[camelize(prop)] || computedStyle.getPropertyValue(prop))
+            props[prop] = (element.style[camelize(prop)] or computedStyle.getPropertyValue(prop))
           )
           props
     css = ''
