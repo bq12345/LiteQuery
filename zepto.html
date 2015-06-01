@@ -6,13 +6,17 @@
 </head>
 <body>
 
-<div class="item"></div>
-<div class="item"></div>
-<div class="item"></div>
+<div class="item">1</div>
+<div class="item">2</div>
+<div class="item">3</div>
 <!--<script src="http://zeptojs.com/zepto.js"></script>-->
 <script src="src/zepto.js"></script>
+<script src="src/event.js"></script>
+<script src="src/touch.js"></script>
 <script>
-    console.log(Object.prototype.toString.call($('.item')))
+    $('.item').on('tap', function () {
+        console.log(this);
+    })
 </script>
 </body>
 </html>
